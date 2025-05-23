@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ChemBalance Quest - Petualangan Kesetimbangan Kimia</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #2c3e50;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated background particles */
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+      50% { transform: translateY(-20px) rotate(180deg); opacity: 0.7; }
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    header {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      color: white;
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(238, 90, 36, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: rotate 10s linear infinite;
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .score-board {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .score-item {
+      background: rgba(255,255,255,0.2);
+      padding: 15px 25px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+      text-align: center;
+      min-width: 120px;
+    }
+
+    .score-value {
+      font-size: 1.8em;
+      font-weight: bold;
+      display: block;
+    }
+
+    .level-section {
+      margin: 30px 0;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      border: 3px solid transparent;
+      background-clip: padding-box;
+      position: relative;
+      transform: translateY(20px);
+      opacity: 0;
+      animation: slideIn 0.8s ease-out forwards;
+    }
+
+    @keyframes slideIn {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .level-section.active {
+      border-color: #3498db;
+      box-shadow: 0 15px 35px rgba(52, 152, 219, 0.3);
+    }
+
+    .level-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 15px;
+    }
+
+    .level-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8em;
+      color: white;
+      font-weight: bold;
+    }
+
+    .level1 .level-icon { background: linear-gradient(135deg, #ff9a9e, #fecfef); }
+    .level2 .level-icon { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+    .level3 .level-icon { background: linear-gradient(135deg, #ffecd2, #fcb69f); }
+    .level4 .level-icon { background: linear-gradient(135deg, #ff8a80, #ff5722); }
+
+    h2 {
+      color: #2c3e50;
+      font-size: 1.8em;
+      margin: 0;
+    }
+
+    .situation-box {
+      background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+      padding: 20px;
+      border-radius: 15px;
+      margin: 20px 0;
+      border-left: 5px solid #2196f3;
+      position: relative;
+    }
+
+    .chemical-equation {
+      background: #1a1a1a;
+      color: #00ff41;
+      padding: 15px;
+      border-radius: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 1.3em;
+      text-align: center;
+      margin: 15px 0;
+      border: 2px solid #00ff41;
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+      position: relative;
+    }
+
+    .equation-animation {
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 20px rgba(0, 255, 65, 0.3); }
+      to { box-shadow: 0 0 30px rgba(0, 255, 65, 0.6); }
+    }
+
+    .choice-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin: 25px 0;
+    }
+
+    .choice-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 18px 25px;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 1.1em;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid transparent;
+    }
+
+    .choice-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+      border-color: #ffffff;
+    }
+
+    .choice-btn:active {
+      transform: translateY(-1px);
+    }
+
+    .choice-btn.correct {
+      background: linear-gradient(135deg, #52c234, #52c234);
+      animation: correctPulse 0.6s ease;
+    }
+
+    .choice-btn.incorrect {
+      background: linear-gradient(135deg, #ff4757, #ff3838);
+      animation: incorrectShake 0.6s ease;
+    }
+
+    @keyframes correctPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes incorrectShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .explanation-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 500px;
+      width: 90%;
+      z-index: 1000;
+      display: none;
+    }
+
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 999;
+      display: none;
+      backdrop-filter: blur(5px);
+    }
+
+    .simulation-area {
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: white;
+      padding: 25px;
+      border-radius: 15px;
+      margin: 20px 0;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.2em;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .molecule {
+      display: inline-block;
+      padding: 8px 15px;
+      margin: 5px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      border: 2px solid rgba(255,255,255,0.4);
+      animation: moleculeFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes moleculeFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00f260, #0575e6);
+      width: 0%;
+      transition: width 0.5s ease;
+      position: relative;
+    }
+
+    .timer-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(0,0,0,0.1);
+      border-radius: 10px;
+    }
+
+    .timer {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #e74c3c;
+    }
+
+    .explosion {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 4em;
+      color: #ff4757;
+      z-index: 1000;
+      display: none;
+      animation: explode 1s ease-in-out;
+    }
+
+    @keyframes explode {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    .achievement {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 25px;
+      margin: 15px 0;
+      text-align: center;
+      font-weight: bold;
+      animation: achievementPop 0.8s ease-out;
+    }
+
+    @keyframes achievementPop {
+      0% { transform: scale(0); }
+      80% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .hint-box {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      color: #856404;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      border-left: 4px solid #f39c12;
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 10px; }
+      h1 { font-size: 2em; }
+      .score-board { gap: 15px; }
+      .choice-container { grid-template-columns: 1fr; }
+      .level-section { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-content">
+        <h1>⚗️ ChemBalance Quest ⚗️</h1>
+        <p>Bergabunglah dengan <strong>Dr. Gendis</strong> dalam petualangan sains!</p>
+        <div class="score-board">
+          <div class="score-item">
+            <span class="score-value" id="score">0</span>
+            <span>Poin</span>
+          </div>
+          <div class="score-item">
+            <span class="score-value" id="level-progress">1/4</span>
+            <span>Level</span>
+          </div>
+          <div class="score-item">
+            <span class="score-value" id="streak">0</span>
+            <span>Streak</span>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="overall-progress"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Level 1 -->
+    <section class="level-section level1 active" id="level1">
+      <div class="level-header">
+        <div class="level-icon">🌡️</div>
+        <div>
+          <h2>Level 1: Master Suhu dan Energi</h2>
+          <p>Pelajari pengaruh suhu terhadap kesetimbangan reaksi</p>
+        </div>
+      </div>
+      
+      <div class="situation-box">
+        <strong>🚨 Situasi Darurat:</strong> Sistem pemanas di pabrik amonia mengalami kerusakan! Suhu reaktor meningkat drastis. Dr. Gendis membutuhkan bantuanmu untuk mengatasi masalah ini.
+      </div>
+      
+      <div class="chemical-equation equation-animation">
+        N₂(g) + 3H₂(g) ⇌ 2NH₃(g) + kalor (ΔH = -92 kJ/mol)
+      </div>
+      
+      <div class="hint-box">
+        💡 <strong>Petunjuk:</strong> Reaksi ini bersifat eksoterm (melepaskan kalor). Bagaimana pengaruh suhu terhadap kesetimbangan reaksi eksoterm?
+      </div>
+      
+      <p><strong>🎯 Misi:</strong> Pilih strategi terbaik untuk memaksimalkan produksi amonia!</p>
+      
+      <div class="choice-container">
+        <button class="choice-btn" onclick="recordAnswer(1, 'turunkan', true)">
+          ❄️ Turunkan suhu reaktor
+        </button>
+        <button class="choice-btn" onclick="recordAnswer(1, 'naikkan', false)">
+          🔥 Naikkan suhu lebih tinggi
+        </button>
+        <button class="choice-btn" onclick="recordAnswer(1, 'biarkan', false)">
+          😴 Biarkan suhu terus naik
+        </button>
+        <button class="choice-btn" onclick="recordAnswer(1, 'katalis', true)">
+          ⚡ Tambahkan katalis besi
+        </button>
+      </div>
+    </section>
+
+    <!-- Level 2 -->
+    <section class="level-section level2" id="level2" style="display:none;">
+      <div class="level-header">
+        <div class="level-icon">💨</div>
+        <div>
+          <h2>Level 2: Tekanan dan Volume Gas</h2>
+          <p>Kuasai prinsip Le Chatelier untuk sistem gas</p>
+        </div>
+      </div>
+      
+      <div class="situation-box">
+        <strong>⚠️ Masalah Baru:</strong> Tangki reaktor mengalami kebocoran! Volume gas berubah dan tekanan menurun. Bagaimana cara mengembalikan produksi optimal?
+      </div>
+      
+      <div class="chemical-equation equation-animation">
+        N₂(g) + 3H₂(g) ⇌ 2NH₃(g)
+        <br><small>(4 mol gas reaktan → 2 mol gas produk)</small>
+      </div>
+      
+      <div class="hint-box">
+        💡 <strong>Analisis:</strong> Perhatikan jumlah mol gas di kiri dan kanan reaksi. Bagaimana tekanan mempengaruhi kesetimbangan?
+      </div>
+      
+      <div class="choice-container">
+        <button class="choice-btn" onclick="recordAnswer(2, 'tingkatkan-tekanan', true)">
+          🔺 Tingkatkan tekanan sistem
+        </button>
+        <button class="choice-btn" onclick="recordAnswer(2, 'turunkan-tekanan', false)">
+          🔻 Turunkan tekanan sistem
+        </button>
+        <button class="choice-btn" onclick="recordAnswer(2, 'kurangi-volume', true)">
+          📦 Kurangi volume reaktor
+        </button>
+        <button class="choice-btn" onclick="recordAnswer(2, 'tambah-volume', false)">
+          📈 Perbesar volume reaktor
+        </button>
+      </div>
+    </section>
+
+    <!-- Level 3 -->
+    <section class="level-section level3" id="level3" style="display:none;">
+      <div class="level-header">
+        <div class="level-icon">⚗️</div>
+        <div>
+          <h2>Level 3: Konsentrasi dan Laju Reaksi</h2>
+          <p>Optimalkan komposisi reaktan untuk hasil maksimal</p>
+        </div>
+      </div>
+      
+      <div class="situation-box">
+        <strong>🧪 Eksperimen:</strong> Dr. Gendis ingin menguji pengaruh penambahan reaktan. Kamu diminta untuk memprediksi dampaknya terhadap kesetimbangan.
+      </div>
+      
+      <div class="chemical-equation equation-animation">
+        N₂(g) + 3H₂(g) ⇌ 2NH₃(g)
+      </div>
+      
+      <p><strong>Skenario:</strong> Menambahkan gas hidrogen (H₂) dalam jumlah besar ke dalam sistem</p>
+      
+      <div class="hint-box">
+        💡 <strong>Prinsip Le Chatelier:</strong> Jika konsentrasi salah satu reaktan ditingkatkan, ke arah mana kesetimbangan akan bergeser?
+      </div>
+      
+      <div class="choice-container">
+        <button class="choice-btn" onclick="recordAnswer(3, 'kanan', true)">
+          ➡️ Kesetimbangan bergeser ke kanan
+        </button>
+        <button class="choice-btn" onclick="recordAnswer(3, 'kiri', false)">
+          ⬅️ Kesetimbangan bergeser ke kiri
+        </button>
+        <button class="choice-btn" onclick="recordAnswer(3, 'tidak-berubah', false)">
+          ⏸️ Kesetimbangan tidak berubah
+        </button>
+        <button class="choice-btn" onclick="recordAnswer(3, 'laju-sama', false)">
+          ⚖️ Laju maju = laju mundur
+        </button>
+      </div>
+    </section>
+
+    <!-- Level 4 - Simulation -->
+    <section class="level-section level4" id="level4" style="display:none;">
+      <div class="level-header">
+        <div class="level-icon">🏭</div>
+        <div>
+          <h2>Level 4: Simulasi Pabrik Amonia</h2>
+          <p>Uji kemampuanmu dalam kondisi industri nyata!</p>
+        </div>
+      </div>
+      
+      <div class="situation-box">
+        <strong>🏁 Misi Akhir:</strong> Kamu sekarang menjadi chief engineer! Dalam 60 detik, optimalkan produksi amonia dengan mengatur berbagai parameter.
+      </div>
+      
+      <div class="timer-section">
+        <div>⏰ Waktu tersisa: <span class="timer" id="timer">60</span> detik</div>
+        <div>🧪 Produksi: <span id="production-count">0</span> molekul NH₃</div>
+        <div>🎯 Target: <span>150</span> molekul</div>
+      </div>
+      
+      <div class="simulation-area" id="simulation-area">
+        <div>🧬 Klik tombol aksi untuk mulai produksi!</div>
+        <div class="molecule-container" id="molecules"></div>
+      </div>
+      
+      <div class="choice-container">
+        <button class="choice-btn" onclick="takeAction('add-N2')">
+          🔵 Tambah N₂
+        </button>
+        <button class="choice-btn" onclick="takeAction('add-H2')">
+          🔴 Tambah H₂
+        </button>
+        <button class="choice-btn" onclick="takeAction('decrease-temp')">
+          ❄️ Turunkan Suhu
+        </button>
+        <button class="choice-btn" onclick="takeAction('increase-pressure')">
+          💨 Naikkan Tekanan
+        </button>
+        <button class="choice-btn" onclick="takeAction('add-catalyst')">
+          ⚡ Katalis Fe
+        </button>
+        <button class="choice-btn" onclick="takeAction('optimize-all')">
+          🚀 Optimasi Total
+        </button>
+      </div>
+    </section>
+
+    <!-- Achievement notifications will appear here -->
+    <div id="achievement-container"></div>
+  </div>
+
+  <!-- Popup for explanations -->
+  <div class="popup-overlay" id="popup-overlay" onclick="closePopup()"></div>
+  <div class="explanation-popup" id="explanation-popup">
+    <h3 id="popup-title"></h3>
+    <p id="popup-content"></p>
+    <button class="choice-btn" onclick="closePopup()" style="margin-top: 20px; width: 100%;">
+      Lanjutkan
+    </button>
+  </div>
+
+  <!-- Explosion effect -->
+  <div class="explosion" id="explosion">💥💥💥</div>
+
+  <script>
+    // Game state
+    let gameState = {
+      currentLevel: 1,
+      score: 0,
+      streak: 0,
+      answers: [],
+      timeLeft: 60,
+      production: 0,
+      timerInterval: null,
+      simulationActive: false
+    };
+
+    // Correct answers and explanations
+    const levelData = {
+      1: {
+        correct: ['turunkan', 'katalis'],
+        explanation: {
+          title: "🌡️ Pengaruh Suhu pada Reaksi Eksoterm",
+          content: "Reaksi pembentukan amonia bersifat eksoterm (ΔH < 0). Menurut prinsip Le Chatelier, menurunkan suhu akan menggeser kesetimbangan ke arah reaksi yang menghasilkan kalor (ke kanan). Katalis besi mempercepat tercapainya kesetimbangan tanpa mengubah posisi kesetimbangan."
+        }
+      },
+      2: {
+        correct: ['tingkatkan-tekanan', 'kurangi-volume'],
+        explanation: {
+          title: "💨 Pengaruh Tekanan pada Sistem Gas",
+          content: "Reaksi: 4 mol gas reaktan → 2 mol gas produk. Meningkatkan tekanan atau mengurangi volume akan menggeser kesetimbangan ke arah yang menghasilkan lebih sedikit molekul gas (ke kanan), sesuai prinsip Le Chatelier."
+        }
+      },
+      3: {
+        correct: ['kanan'],
+        explanation: {
+          title: "⚗️ Pengaruh Konsentrasi Reaktan",
+          content: "Menambahkan H₂ (reaktan) akan meningkatkan konsentrasi reaktan. Menurut prinsip Le Chatelier, sistem akan menggeser kesetimbangan ke kanan untuk mengurangi gangguan, sehingga menghasilkan lebih banyak NH₃."
+        }
+      }
+    };
+
+    // Initialize game
+    function initGame() {
+      createParticles();
+      updateUI();
+    }
+
+    // Create animated background particles
+    function createParticles() {
+      for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 6 + 's';
+        document.body.appendChild(particle);
+      }
+    }
+
+    // Record answer and provide feedback
+    function recordAnswer(level, choice, isCorrect) {
+      const buttons = document.querySelectorAll(`#level${level} .choice-btn`);
+      const clickedButton = event.target;
+      
+      // Disable all buttons
+      buttons.forEach(btn => btn.style.pointerEvents = 'none');
+      
+      if (isCorrect) {
+        clickedButton.classList.add('correct');
+        gameState.score += 25;
+        gameState.streak++;
+        showAchievement(`✅ Jawaban Benar! +25 poin`);
+      } else {
+        clickedButton.classList.add('incorrect');
+        gameState.streak = 0;
+        showAchievement(`❌ Kurang tepat. Coba lagi!`);
+      }
+      
+      gameState.answers[level] = { choice, isCorrect };
+      
+      setTimeout(() => {
+        showExplanation(level);
+      }, 1500);
+    }
+
+    // Show explanation popup
+    function showExplanation(level) {
+      const data = levelData[level];
+      document.getElementById('popup-title').textContent = data.explanation.title;
+      document.getElementById('popup-content').textContent = data.explanation.content;
+      document.getElementById('popup-overlay').style.display = 'block';
+      document.getElementById('explanation-popup').style.display = 'block';
+    }
+
+    // Close popup and advance to next level
+    function closePopup() {
+      document.getElementById('popup-overlay').style.display = 'none';
+      document.getElementById('explanation-popup').style.display = 'none';
+      advanceToNextLevel();
+    }
+
+    // Advance to next level
+    function advanceToNextLevel() {
+      document.getElementById(`level${gameState.currentLevel}`).style.display = 'none';
+      gameState.currentLevel++;
+      
+      if (gameState.currentLevel <= 4) {
+        document.getElementById(`level${gameState.currentLevel}`).style.display = 'block';
+        document.getElementById(`level${gameState.currentLevel}`).classList.add('active');
+        updateUI();
+        
+        if (gameState.currentLevel === 4) {
+          startSimulation();
+        }
+      }
+    }
+
+    // Start level 4 simulation
+    function startSimulation() {
+      gameState.timeLeft = 60;
+      gameState.production = 0;
+      gameState.simulationActive = true;
+      
+      gameState.timerInterval = setInterval(() => {
+        gameState.timeLeft--;
+        document.getElementById('timer').textContent = gameState.timeLeft;
+        
+        if (gameState.timeLeft <= 0) {
+          endSimulation();
+        }
+      }, 1000);
+      
+      updateSimulationDisplay();
+    }
+
+    // Handle simulation actions
+    function takeAction(action) {
+      if (!gameState.simulationActive) return;
+      
+      let productionIncrease = 0;
+      let message = '';
+      
+      switch(action) {
+        case 'add-N2':
+          productionIncrease = 8;
+          message = '🔵 N₂ ditambahkan! Reaktan meningkat.';
+          break;
+        case 'add-H2':
+          productionIncrease = 10;
+          message = '🔴 H₂ ditambahkan! Laju reaksi meningkat.';
+          break;
+        case 'decrease-temp':
+          productionIncrease = 15;
+          message = '❄️ Suhu diturunkan! Kesetimbangan bergeser ke produk.';
+          break;
+        case 'increase-pressure':
+          productionIncrease = 12;
+          message = '💨 Tekanan dinaikkan! Lebih banyak NH₃ terbentuk.';
+          break;
+        case 'add-catalyst':
+          productionIncrease = 20;
+          message = '⚡ Katalis Fe bekerja! Reaksi sangat dipercepat.';
+          break;
+        case 'optimize-all':
+          productionIncrease = 30;
+          message = '🚀 Optimasi total berhasil! Produksi maksimal!';
+          gameState.score += 50; // Bonus for smart choice
+          break;
+      }
+      
+      gameState.production += productionIncrease;
+      gameState.score += productionIncrease;
+      
+      updateSimulationDisplay();
+      showMoleculeAnimation(action);
+      
+      // Show action feedback
+      const simArea = document.getElementById('simulation-area');
+      const feedbackDiv = document.createElement('div');
+      feedbackDiv.textContent = message;
+      feedbackDiv.style.cssText = `
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,255,0,0.8);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: bold;
+        animation: fadeInOut 2s ease-in-out;
+      `;
+      simArea.appendChild(feedbackDiv);
+      
+      setTimeout(() => {
+        if (feedbackDiv.parentNode) {
+          feedbackDiv.parentNode.removeChild(feedbackDiv);
+        }
+      }, 2000);
+    }
+
+    // Show molecule animation
+    function showMoleculeAnimation(action) {
+      const container = document.getElementById('molecules');
+      const molecules = ['NH₃', 'NH₃', 'NH₃'];
+      
+      molecules.forEach((mol, index) => {
+        setTimeout(() => {
+          const molDiv = document.createElement('div');
+          molDiv.className = 'molecule';
+          molDiv.textContent = mol;
+          molDiv.style.animationDelay = index * 0.3 + 's';
+          container.appendChild(molDiv);
+          
+          setTimeout(() => {
+            if (molDiv.parentNode) {
+              molDiv.parentNode.removeChild(molDiv);
+            }
+          }, 3000);
+        }, index * 200);
+      });
+    }
+
+    // Update simulation display
+    function updateSimulationDisplay() {
+      document.getElementById('production-count').textContent = gameState.production;
+      updateUI();
+    }
+
+    // End simulation
+    function endSimulation() {
+      clearInterval(gameState.timerInterval);
+      gameState.simulationActive = false;
+      
+      const target = 150;
+      const success = gameState.production >= target;
+      
+      if (success) {
+        gameState.score += 100; // Completion bonus
+        showAchievement('🎉 Misi Berhasil! Produksi amonia optimal tercapai!');
+        setTimeout(() => {
+          showFinalResults(true);
+        }, 2000);
+      } else {
+        document.getElementById('explosion').style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('explosion').style.display = 'none';
+          showFinalResults(false);
+        }, 3000);
+      }
+    }
+
+    // Show final results
+    function showFinalResults(success) {
+      const level4 = document.getElementById('level4');
+      level4.innerHTML = `
+        <div class="level-header">
+          <div class="level-icon">${success ? '🏆' : '😔'}</div>
+          <div>
+            <h2>${success ? 'Selamat! Misi Berhasil!' : 'Hampir Berhasil!'}</h2>
+            <p>Hasil akhir petualangan kesetimbangan kimia</p>
+          </div>
+        </div>
+        
+        <div class="situation-box" style="background: ${success ? 'linear-gradient(135deg, #d4ffdf, #c8f7c5)' : 'linear-gradient(135deg, #ffe1e1, #ffcdd2)'};">
+          <h3>📊 Laporan Akhir:</h3>
+          <p><strong>Total Poin:</strong> ${gameState.score}</p>
+          <p><strong>Produksi NH₃:</strong> ${gameState.production} molekul</p>
+          <p><strong>Streak Terpanjang:</strong> ${Math.max(...Object.values(gameState.answers).map((_, i) => i + 1))}</p>
+          <p><strong>Tingkat Keberhasilan:</strong> ${Math.round((gameState.production / 150) * 100)}%</p>
+        </div>
+        
+        <div class="achievement">
+          ${success ? 
+            '🎊 Dr. Gendis bangga dengan pencapaianmu! Kamu telah menguasai prinsip-prinsip kesetimbangan kimia dengan sangat baik!' : 
+            '💪 Jangan menyerah! Kamu sudah memahami konsep dasarnya. Coba lagi untuk hasil yang lebih optimal!'
+          }
+        </div>
+        
+        <div class="choice-container">
+          <button class="choice-btn" onclick="restartGame()" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+            🔄 Main Lagi
+          </button>
+          <button class="choice-btn" onclick="showDetailedExplanation()" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+            📚 Pelajari Lebih Lanjut
+          </button>
+        </div>
+      `;
+    }
+
+    // Show detailed explanation
+    function showDetailedExplanation() {
+      document.getElementById('popup-title').textContent = '📖 Rangkuman Kesetimbangan Kimia';
+      document.getElementById('popup-content').innerHTML = `
+        <div style="text-align: left;">
+          <h4>🔥 Pengaruh Suhu:</h4>
+          <p>• Reaksi eksoterm: suhu ↓ → produk ↑</p>
+          <p>• Reaksi endoterm: suhu ↑ → produk ↑</p>
+          
+          <h4>💨 Pengaruh Tekanan:</h4>
+          <p>• Tekanan ↑ → menuju sisi dengan mol gas lebih sedikit</p>
+          <p>• Volume ↓ → sama dengan tekanan ↑</p>
+          
+          <h4>⚗️ Pengaruh Konsentrasi:</h4>
+          <p>• Reaktan ↑ → kesetimbangan bergeser ke produk</p>
+          <p>• Produk ↑ → kesetimbangan bergeser ke reaktan</p>
+          
+          <h4>⚡ Katalis:</h4>
+          <p>• Mempercepat tercapainya kesetimbangan</p>
+          <p>• Tidak mengubah posisi kesetimbangan</p>
+        </div>
+      `;
+      document.getElementById('popup-overlay').style.display = 'block';
+      document.getElementById('explanation-popup').style.display = 'block';
+    }
+
+    // Restart game
+    function restartGame() {
+      gameState = {
+        currentLevel: 1,
+        score: 0,
+        streak: 0,
+        answers: [],
+        timeLeft: 60,
+        production: 0,
+        timerInterval: null,
+        simulationActive: false
+      };
+      
+      // Hide all levels
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById(`level${i}`).style.display = 'none';
+        document.getElementById(`level${i}`).classList.remove('active');
+      }
+      
+      // Show level 1
+      document.getElementById('level1').style.display = 'block';
+      document.getElementById('level1').classList.add('active');
+      
+      // Reset all buttons
+      document.querySelectorAll('.choice-btn').forEach(btn => {
+        btn.classList.remove('correct', 'incorrect');
+        btn.style.pointerEvents = 'auto';
+      });
+      
+      updateUI();
+      closePopup();
+    }
+
+    // Show achievement notification
+    function showAchievement(message) {
+      const container = document.getElementById('achievement-container');
+      const achievement = document.createElement('div');
+      achievement.className = 'achievement';
+      achievement.textContent = message;
+      
+      container.appendChild(achievement);
+      
+      setTimeout(() => {
+        if (achievement.parentNode) {
+          achievement.parentNode.removeChild(achievement);
+        }
+      }, 4000);
+    }
+
+    // Update UI elements
+    function updateUI() {
+      document.getElementById('score').textContent = gameState.score;
+      document.getElementById('level-progress').textContent = `${gameState.currentLevel}/4`;
+      document.getElementById('streak').textContent = gameState.streak;
+      
+      const progress = (gameState.currentLevel - 1) / 3 * 100;
+      document.getElementById('overall-progress').style.width = progress + '%';
+    }
+
+    // Add CSS animation for fadeInOut
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeInOut {
+        0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        20% { opacity: 1; transform: translateX(-50%) translateY(0); }
+        80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+        100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Initialize game when page loads
+    window.addEventListener('load', initGame);
+
+    // Add achievement container to DOM
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!document.getElementById('achievement-container')) {
+        const achievementContainer = document.createElement('div');
+        achievementContainer.id = 'achievement-container';
+        achievementContainer.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          z-index: 1001;
+          pointer-events: none;
+        `;
+        document.body.appendChild(achievementContainer);
+      }
+    });
+  </script>
+</body>
+</html>
